@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url] [![Dependency status][dependency-image]][dependency-url]
 
 * Студент: [Наталья Ремизова](https://up.htmlacademy.ru/javascript/8/user/233964).
-* Наставник: `Неизвестно`.
+* Наставник: [Саргон Пираев](https://htmlacademy.ru/profile/id166472).
 
 ---
 
