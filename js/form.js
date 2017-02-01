@@ -5,8 +5,12 @@ var allPins = document.querySelectorAll('.pin');
 var dialogCard = document.querySelector('.dialog');
 var dialogClose = document.querySelector('.dialog__close');
 
+for (var i = 0; i < allPins.length; i++) {
+  activatePin(allPins[i]);
+}
+
 function activatePin(thePin) {
-  thePin.addEventListener('click', function() {
+  thePin.addEventListener('click', function () {
     var activePins = document.querySelectorAll('.pin--active');
     for (var i = 0; i < activePins.length; i++) {
       var activePin = activePins[i];
@@ -17,12 +21,10 @@ function activatePin(thePin) {
   });
 }
 
-for (var i = 0; i < allPins.length; i++) {
-  activatePin(allPins[i]);
-}
-
 // Закрытие карточки объявления
-dialogClose.addEventListener('click', function() {
+dialogClose.addEventListener('click', closeCard);
+
+function closeCard() {
   var activePins = document.querySelectorAll('.pin--active');
   for (var i = 0; i < allPins.length; i++) {
     if (activePins[i]) {
@@ -30,7 +32,7 @@ dialogClose.addEventListener('click', function() {
     }
   }
   dialogCard.classList.add('invisible');
-});
+}
 
 // Проверка правильности введенных данных
 // Заголовок объявления
@@ -84,7 +86,6 @@ function changeTimeIn() {
 
 // Значение поля «Тип жилья» синхронизировано с минимальной ценой
 var type = document.querySelector('#type');
-var typeOptions = document.querySelectorAll('#type option');
 type.addEventListener('change', changeMinPrice);
 function changeMinPrice() {
   var minPrice = 1000; // default for flat
