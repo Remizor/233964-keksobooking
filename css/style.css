@@ -525,6 +525,10 @@ select option:hover {
     border: 2px solid transparent;
 }
 
+.invisible {
+  display: none !important;
+}
+
 .lodge__title {
     margin: 0 0 4px;
     font-size: 16px;
