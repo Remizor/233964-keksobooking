@@ -1,8 +1,8 @@
 'use strict';
 
-//  модуль, который экспортирует в глобальную области видимости функцию initializePins. Функция должна содержать всю логику по отрисовке меток на карте: добавление обработчиков, показ и закрытие карточки, отметку метки как активной.
+//  Модуль, который экспортирует в глобальную области видимости функцию initializePins. Функция должна содержать всю логику по отрисовке меток на карте: добавление обработчиков, показ и закрытие карточки, отметку метки как активной.
 
-function initializePins() {
+(function () {
   // Показ карточки объявления
   var allPins = document.querySelectorAll('.pin');
   var dialogCard = document.querySelector('.dialog');
@@ -75,8 +75,6 @@ function initializePins() {
     element.setAttribute('role', 'dialog');
   }
 
-
-
   function setTabindex(element, tabindex) {
     element.setAttribute('tabindex', tabindex);
   }
@@ -116,4 +114,4 @@ function initializePins() {
   // Оптимизировать обработчики используя делегирование
   pinMap.addEventListener('click', activatePinByClick);
   pinMap.addEventListener('keydown', activatePinByEnter);
-}
+})();
