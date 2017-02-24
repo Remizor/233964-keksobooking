@@ -3,7 +3,7 @@
 // Закрытие карточки объявления
 var hideCard = function(){
   // Для управления мышкой
-  dialogClose.addEventListener('click', closeCard);
+  window.dialogClose.addEventListener('click', closeCard);
 
   function closeCard() {
     var activePins = document.querySelectorAll('.pin--active');
@@ -12,7 +12,7 @@ var hideCard = function(){
         activePins[i].classList.remove('pin--active');
       }
     }
-    dialogCard.classList.add('invisible');
+    window.dialogCard.classList.add('invisible');
 
     if (typeof window.onCardClose === 'function') {
       window.onCardClose();
@@ -21,7 +21,7 @@ var hideCard = function(){
 
   // Для управления с клавиатуры
   document.addEventListener('keydown', closeByEsc);
-  dialogClose.addEventListener('keydown', closeByEnter);
+  window.dialogClose.addEventListener('keydown', closeByEnter);
 
   function closeByEsc(event) {
     if (window.utils.escapePressed(event)) {
