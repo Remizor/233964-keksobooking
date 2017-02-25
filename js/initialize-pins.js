@@ -34,7 +34,7 @@ initializeElements();
         newPin.children[0].src = pinData.author.avatar;
       };
 
-      for (var i = 0 ; i < 3; i++) {
+      for (var i = 0 ; i < window.similarApartments.length; i++) {
         clonePin();
         locatePin(pinMap.children[i+1], window.similarApartments[i]);
       }
@@ -52,7 +52,6 @@ initializeElements();
 window.updateDialogCardInfo = function(pinData) {
   // avatar
   document.querySelector(".dialog__title img").src = pinData.author.avatar;
-
   // dialog panel
   document.querySelector(".lodge__title").innerHTML = pinData.offer.title;
   document.querySelector(".lodge__address").innerHTML = pinData.offer.address;
@@ -119,5 +118,112 @@ function addkeyboardElements() {
     element.setAttribute('tabindex', tabindex);
   }
 };
-
 window.addkeyboardElements = addkeyboardElements();
+
+// Включение фильтров
+(function() {
+  var filters = document.querySelectorAll('.tokyo__filter');
+
+  for (var i = 0; i < filters.length; i++) {
+    filters[i].addEventListener('change', hideAllPins);
+    filters[i].addEventListener('change', activateFilters);
+  }
+
+  function hideAllPins() {
+    for (var i = 1; i < window.allPins.length; i++) {
+      window.allPins[i].classList.add('invisible');
+    };
+  }
+
+
+
+  function activateFilters() {
+    console.log('activateFilters is working');
+
+    var pinsToShowList = [];
+
+    function synchronizeFields_2(element1, values1, parameter, syncFunction) {
+      // console.log('im inside sync_2: values1 = ' + values1);
+
+      for (var i = 0; i < values1.length; i++) {
+        if (element1.value === values1[i]) {
+          if (typeof syncFunction === 'function') {
+            syncFunction(element1, parameter);
+          }
+        }
+      }
+    };
+
+
+    function filterByValue(filter, parameter) {
+      pinsToShowList = [];
+
+      for (var j = 0; j < window.similarApartments.length; j++) {
+        var pinData = window.similarApartments[j];
+
+        if (filter.value === 'any') {
+          pinsToShowList.push(j);
+        };
+
+        if (filter.value === String(pinData.offer[parameter])) {
+          pinsToShowList.push(j);
+        };
+
+      }
+      console.log('pinsToShowList = ' + pinsToShowList);
+
+      (function showPins() {
+        console.log('pinsToShowList at the end = ' + pinsToShowList);
+        for (var i = 0; i < pinsToShowList.length; i++) {
+          window.allPins[pinsToShowList[i] + 1].classList.remove('invisible');
+        }
+      })();
+
+    };
+
+    function filterByPrice(filter, parameter) {
+      pinsToShowList = [];
+
+      for (var j = 0; j < window.similarApartments.length; i++) {
+        var pinData = window.similarApartments[j];
+        var offerPrice = pinData.offer[parameter];
+
+        if (filter.value === 'low') {
+          if (offerPrice < 10000) {
+            pinsToShowList.push(i);
+          }
+        };
+
+        if (filter.value === 'high') {
+          if (offerPrice > 50000) {
+            pinsToShowList.push(i);
+          }
+        };
+
+        if (filter.value === 'middle') {
+          if (offerPrice > 10000 && offerPrice < 50000) {
+            pinsToShowList.push(i);
+          }
+        };
+      };
+      console.log('pinsToShowList = ' + pinsToShowList);
+
+      (function showPins() {
+        console.log('pinsToShowList at the end = ' + pinsToShowList);
+        for (var i = 0; i < pinsToShowList.length; i++) {
+          window.allPins[pinsToShowList[i] + 1].classList.remove('invisible');
+        }
+      })();
+
+    };
+
+    synchronizeFields_2(filters[0], ['any', 'flat', 'house', 'bungalo'], 'type', filterByValue)();
+
+    synchronizeFields_2(filters[1], ['middle', 'low', 'hight'], 'price', filterByPrice)();
+
+    synchronizeFields_2(filters[2], ['any', '1', '2', '3'], 'rooms', filterByValue)();
+
+    synchronizeFields_2(filters[3], ['any', '1', '2'], 'guests', filterByValue)();
+
+  };
+})();
