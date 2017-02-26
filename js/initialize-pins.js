@@ -124,6 +124,26 @@ window.addkeyboardElements = addkeyboardElements();
 (function() {
   var filters = document.querySelectorAll('.tokyo__filter');
   var pinsToShowList = [];
+  var selectedFeatures = [];
+  var activeFilters = {
+    features: function(items) {
+      if (selectedFeatures.length === 0) {
+        return items;
+      }
+
+      return items.filter(function(item) {
+        var contain = false;
+
+        selectedFeatures.map(function(feature) {
+          if (window.similarApartments[item].offer.features.indexOf(feature) > -1) {
+            contain = true;
+          }
+        });
+
+        return contain;
+      });
+    }
+  };
 
   // for (var i = 0; i < filters.length; i++) {
   //   filters[i].addEventListener('change', activateFilter + i);
@@ -142,14 +162,38 @@ window.addkeyboardElements = addkeyboardElements();
 
   filters[3].addEventListener('change', activateFilter3);
 
+  document.querySelector('#housing_features').addEventListener('change', function(event) {
+    console.log('change ', event.target.name, event.target.value);
+    var value = event.target.value;
+    var index = selectedFeatures.indexOf(value);
+
+    if (index > -1) {
+      selectedFeatures = [].concat(selectedFeatures.slice(0, index), selectedFeatures.slice(index + 1));
+    } else {
+      selectedFeatures.push(value);
+    }
+
+    console.log('selectedFeatures cahnge', selectedFeatures);
+
+        showPins();
+  });
+
   // filters.addEventListener('change', onFilterChange);
 
   function activateFilter0() {
     // скрытие всех пинов с карты
-    hideAllPins();
+    // hideAllPins();
 
     // сравнение данных каждого пина и значения фильтра
-    synchronizeFields_2(filters[0], ['any', 'flat', 'house', 'bungalo'], 'type', filterByValue);
+    activeFilters.type = function(items) {
+      return synchronizeFields_2(
+        filters[0],
+        ['any', 'flat', 'house', 'bungalo'],
+        'type',
+        filterByValue,
+        items
+      );
+    };
 
     // отображение подходящих пинов, которые записаны в pinsToShowList
     showPins();
@@ -157,10 +201,18 @@ window.addkeyboardElements = addkeyboardElements();
 
   function activateFilter1() {
     // скрытие всех пинов с карты
-    hideAllPins();
+    // hideAllPins();
 
     // сравнение данных каждого пина и значения фильтра
-    synchronizeFields_2(filters[1], ['middle', 'low', 'hight'], 'price', filterByPrice);
+    activeFilters.price = function(items) {
+      return synchronizeFields_2(
+        filters[1],
+        ['middle', 'low', 'high'],
+        'price',
+        filterByPrice,
+        items
+      );
+    };
 
     // отображение подходящих пинов, которые записаны в pinsToShowList
     showPins();
@@ -168,10 +220,18 @@ window.addkeyboardElements = addkeyboardElements();
 
   function activateFilter2() {
     // скрытие всех пинов с карты
-    hideAllPins();
+    // hideAllPins();
 
     // сравнение данных каждого пина и значения фильтра
-    synchronizeFields_2(filters[2], ['any', '1', '2', '3'], 'rooms', filterByValue);
+    activeFilters.rooms = function(items) {
+      return synchronizeFields_2(
+        filters[2],
+        ['any', '1', '2', '3'],
+        'rooms',
+        filterByValue,
+        items
+      );
+    };
 
     // отображение подходящих пинов, которые записаны в pinsToShowList
     showPins();
@@ -182,11 +242,53 @@ window.addkeyboardElements = addkeyboardElements();
     hideAllPins();
 
     // сравнение данных каждого пина и значения фильтра
-    synchronizeFields_2(filters[3], ['any', '1', '2'], 'guests', filterByValue);
+    activeFilters.guests = function(items) {
+      return synchronizeFields_2(
+        filters[3],
+        ['any', '1', '2'],
+        'guests',
+        filterByValue,
+        items
+      );
+    };
 
     // отображение подходящих пинов, которые записаны в pinsToShowList
     showPins();
   };
+
+  function filterProcess(activeFilters) {
+    // console.log('filterProcess start');
+    var filteredPins = [];
+    var items = window.similarApartments.map(function(item, index) {
+      return index;
+    });
+
+    Object.keys(activeFilters).map(function(fieldName) {
+      // console.log('filter apply', activeFilters[fieldName]());
+      console.log('filteredPins before', filteredPins);
+
+      if (!fieldName) {
+        return null;
+      }
+
+      if (filteredPins.length === 0) {
+        filteredPins = activeFilters[fieldName](items);
+      } else {
+        filteredPins = activeFilters[fieldName](filteredPins);
+      }
+            console.log('filteredPins after', filteredPins, fieldName);
+      // filteredPins = filteredPins.concat(activeFilters[fieldName](
+      //   filteredPins.length === 0 ?
+      //   items :
+      //   filteredPins
+      // ));
+      // filteredPins.push(filterFunction());
+    });
+
+    // console.log('filter process return ', filteredPins);
+
+    return filteredPins;
+  }
 
 
 
@@ -197,63 +299,99 @@ window.addkeyboardElements = addkeyboardElements();
     };
   }
 
-  function filterByValue(filter, parameter) {
-    pinsToShowList = [];
+  function filterByValue(filter, parameter, items) {
+    var filteredItems = [];
     // console.log('filter value '  + filter.value);
-    for (var j = 0; j < window.similarApartments.length; j++) {
-      var pinData = window.similarApartments[j];
+    for (var j = 0; j < items.length; j++) {
+      var pinData = window.similarApartments[items[j]];
+
+      if (typeof pinData === 'undefined') {
+        continue;
+      }
 
       if (filter.value === 'any') {
-        pinsToShowList.push(j);
-      };
-
-      if (filter.value === String(pinData.offer[parameter])) {
-        pinsToShowList.push(j);
+        filteredItems.push(items[j]);
+      } else if (filter.value === String(pinData.offer[parameter])) {
+        filteredItems.push(items[j]);
       };
 
     }
+
+    return filteredItems;
+    // console.log('pinsToShowList = ' + pinsToShowList);
+  };
+  function filterByFeature(filter, value, items) {
+    var filteredItems = [];
+    // console.log('filter value '  + filter.value);
+    for (var j = 0; j < items.length; j++) {
+      var pinData = window.similarApartments[items[j]];
+
+      if (typeof pinData === 'undefined') {
+        continue;
+      }
+
+      if (filter.features.indexOf(value) > -1) {
+        filteredItems.push(items[j]);
+      }
+    }
+
+    return filteredItems;
     // console.log('pinsToShowList = ' + pinsToShowList);
   };
 
-  function filterByPrice(filter, parameter) {
-    pinsToShowList = [];
+  function filterByPrice(filter, parameter, items) {
+    console.log('filterByPrice run');
+    var filteredItems = [];
 
-    for (var j = 0; j < window.similarApartments.length; j++) {
-      var pinData = window.similarApartments[j];
+    for (var j = 0; j < items.length; j++) {
+      var pinData = window.similarApartments[items[j]];
       var offerPrice = pinData.offer[parameter];
 
-      console.log(j + ' offerPrice = ' + offerPrice);
-      console.log('filter.value = ' + filter.value);
-      console.log('low?' + (offerPrice < 10000));
-      console.log('middle?' + (offerPrice > 10000 && offerPrice < 50000));
-      console.log('high?' + (offerPrice > 50000));
+      // console.log(j + ' offerPrice = ' + offerPrice);
+      // console.log('filter.value = ' + filter.value);
+      // console.log('low?' + (offerPrice < 10000));
+      // console.log('middle?' + (offerPrice > 10000 && offerPrice < 50000));
+      // console.log('high?' + (offerPrice > 50000));
 
 
       if (filter.value === 'low') {
         if (offerPrice < 10000) {
-          pinsToShowList.push(j);
+          filteredItems.push(items[j]);
         }
       };
 
       if (filter.value === 'high') {
         if (offerPrice > 50000) {
-          pinsToShowList.push(j);
+          filteredItems.push(items[j]);
         }
       };
 
       if (filter.value === 'middle') {
         if (offerPrice > 10000 && offerPrice < 50000) {
-          pinsToShowList.push(j);
+          filteredItems.push(items[j]);
         }
       };
     };
+
+    console.log('filter by price ', filteredItems);
+
+    return filteredItems;
     // console.log('pinsToShowList = ' + pinsToShowList);
   };
 
   function showPins() {
-    console.log('pinsToShowList at the end 2 = ' + pinsToShowList);
-    for (var i = 0; i < pinsToShowList.length; i++) {
-      window.allPins[pinsToShowList[i] + 1].classList.remove('invisible');
+    hideAllPins();
+
+    var filteredItemsToShow = filterProcess(activeFilters);
+    // console.log('===', filteredItemsToShow);
+
+    // console.log('pinsToShowList at the end 2 = ' + pinsToShowList);
+    for (var i = 0; i < filteredItemsToShow.length; i++) {
+      if (typeof filteredItemsToShow[i] === 'undefined') {
+        continue;
+      }
+
+      window.allPins[filteredItemsToShow[i] + 1].classList.remove('invisible');
     }
   };
 })();
