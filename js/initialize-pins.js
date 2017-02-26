@@ -12,8 +12,8 @@ function initializeElements() {
 initializeElements();
 
 (function(){
-
-  var similarApartments = [];
+  var activeFilters = [];
+  window.similarApartments = [];
 
   window.load('https://intensive-javascript-server-pedmyactpq.now.sh/keksobooking/data', function(event) {
     try {
@@ -123,107 +123,137 @@ window.addkeyboardElements = addkeyboardElements();
 // Включение фильтров
 (function() {
   var filters = document.querySelectorAll('.tokyo__filter');
+  var pinsToShowList = [];
 
-  for (var i = 0; i < filters.length; i++) {
-    filters[i].addEventListener('change', hideAllPins);
-    filters[i].addEventListener('change', activateFilters);
-  }
+  // for (var i = 0; i < filters.length; i++) {
+  //   filters[i].addEventListener('change', activateFilter + i);
+  //
+  // };
 
+  // var onFilterChange = function(event) {
+  //
+  // };
+
+  filters[0].addEventListener('change', activateFilter0);
+
+  filters[1].addEventListener('change', activateFilter1);
+
+  filters[2].addEventListener('change', activateFilter2);
+
+  filters[3].addEventListener('change', activateFilter3);
+
+  // filters.addEventListener('change', onFilterChange);
+
+  function activateFilter0() {
+    // скрытие всех пинов с карты
+    hideAllPins();
+
+    // сравнение данных каждого пина и значения фильтра
+    synchronizeFields_2(filters[0], ['any', 'flat', 'house', 'bungalo'], 'type', filterByValue);
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function activateFilter1() {
+    // скрытие всех пинов с карты
+    hideAllPins();
+
+    // сравнение данных каждого пина и значения фильтра
+    synchronizeFields_2(filters[1], ['middle', 'low', 'hight'], 'price', filterByPrice);
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function activateFilter2() {
+    // скрытие всех пинов с карты
+    hideAllPins();
+
+    // сравнение данных каждого пина и значения фильтра
+    synchronizeFields_2(filters[2], ['any', '1', '2', '3'], 'rooms', filterByValue);
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function activateFilter3() {
+    // скрытие всех пинов с карты
+    hideAllPins();
+
+    // сравнение данных каждого пина и значения фильтра
+    synchronizeFields_2(filters[3], ['any', '1', '2'], 'guests', filterByValue);
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+
+
+  // вспомогательные функции
   function hideAllPins() {
     for (var i = 1; i < window.allPins.length; i++) {
       window.allPins[i].classList.add('invisible');
     };
   }
 
+  function filterByValue(filter, parameter) {
+    pinsToShowList = [];
+    // console.log('filter value '  + filter.value);
+    for (var j = 0; j < window.similarApartments.length; j++) {
+      var pinData = window.similarApartments[j];
 
-
-  function activateFilters() {
-    console.log('activateFilters is working');
-
-    var pinsToShowList = [];
-
-    function synchronizeFields_2(element1, values1, parameter, syncFunction) {
-      // console.log('im inside sync_2: values1 = ' + values1);
-
-      for (var i = 0; i < values1.length; i++) {
-        if (element1.value === values1[i]) {
-          if (typeof syncFunction === 'function') {
-            syncFunction(element1, parameter);
-          }
-        }
-      }
-    };
-
-
-    function filterByValue(filter, parameter) {
-      pinsToShowList = [];
-
-      for (var j = 0; j < window.similarApartments.length; j++) {
-        var pinData = window.similarApartments[j];
-
-        if (filter.value === 'any') {
-          pinsToShowList.push(j);
-        };
-
-        if (filter.value === String(pinData.offer[parameter])) {
-          pinsToShowList.push(j);
-        };
-
-      }
-      console.log('pinsToShowList = ' + pinsToShowList);
-
-      (function showPins() {
-        console.log('pinsToShowList at the end = ' + pinsToShowList);
-        for (var i = 0; i < pinsToShowList.length; i++) {
-          window.allPins[pinsToShowList[i] + 1].classList.remove('invisible');
-        }
-      })();
-
-    };
-
-    function filterByPrice(filter, parameter) {
-      pinsToShowList = [];
-
-      for (var j = 0; j < window.similarApartments.length; i++) {
-        var pinData = window.similarApartments[j];
-        var offerPrice = pinData.offer[parameter];
-
-        if (filter.value === 'low') {
-          if (offerPrice < 10000) {
-            pinsToShowList.push(i);
-          }
-        };
-
-        if (filter.value === 'high') {
-          if (offerPrice > 50000) {
-            pinsToShowList.push(i);
-          }
-        };
-
-        if (filter.value === 'middle') {
-          if (offerPrice > 10000 && offerPrice < 50000) {
-            pinsToShowList.push(i);
-          }
-        };
+      if (filter.value === 'any') {
+        pinsToShowList.push(j);
       };
-      console.log('pinsToShowList = ' + pinsToShowList);
 
-      (function showPins() {
-        console.log('pinsToShowList at the end = ' + pinsToShowList);
-        for (var i = 0; i < pinsToShowList.length; i++) {
-          window.allPins[pinsToShowList[i] + 1].classList.remove('invisible');
+      if (filter.value === String(pinData.offer[parameter])) {
+        pinsToShowList.push(j);
+      };
+
+    }
+    // console.log('pinsToShowList = ' + pinsToShowList);
+  };
+
+  function filterByPrice(filter, parameter) {
+    pinsToShowList = [];
+
+    for (var j = 0; j < window.similarApartments.length; j++) {
+      var pinData = window.similarApartments[j];
+      var offerPrice = pinData.offer[parameter];
+
+      console.log(j + ' offerPrice = ' + offerPrice);
+      console.log('filter.value = ' + filter.value);
+      console.log('low?' + (offerPrice < 10000));
+      console.log('middle?' + (offerPrice > 10000 && offerPrice < 50000));
+      console.log('high?' + (offerPrice > 50000));
+
+
+      if (filter.value === 'low') {
+        if (offerPrice < 10000) {
+          pinsToShowList.push(j);
         }
-      })();
+      };
 
+      if (filter.value === 'high') {
+        if (offerPrice > 50000) {
+          pinsToShowList.push(j);
+        }
+      };
+
+      if (filter.value === 'middle') {
+        if (offerPrice > 10000 && offerPrice < 50000) {
+          pinsToShowList.push(j);
+        }
+      };
     };
+    // console.log('pinsToShowList = ' + pinsToShowList);
+  };
 
-    synchronizeFields_2(filters[0], ['any', 'flat', 'house', 'bungalo'], 'type', filterByValue)();
-
-    synchronizeFields_2(filters[1], ['middle', 'low', 'hight'], 'price', filterByPrice)();
-
-    synchronizeFields_2(filters[2], ['any', '1', '2', '3'], 'rooms', filterByValue)();
-
-    synchronizeFields_2(filters[3], ['any', '1', '2'], 'guests', filterByValue)();
-
+  function showPins() {
+    console.log('pinsToShowList at the end 2 = ' + pinsToShowList);
+    for (var i = 0; i < pinsToShowList.length; i++) {
+      window.allPins[pinsToShowList[i] + 1].classList.remove('invisible');
+    }
   };
 })();
