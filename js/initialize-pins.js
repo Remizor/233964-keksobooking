@@ -12,8 +12,8 @@ function initializeElements() {
 initializeElements();
 
 (function(){
-
-  var similarApartments = [];
+  var activeFilters = [];
+  window.similarApartments = [];
 
   window.load('https://intensive-javascript-server-pedmyactpq.now.sh/keksobooking/data', function(event) {
     try {
@@ -34,7 +34,7 @@ initializeElements();
         newPin.children[0].src = pinData.author.avatar;
       };
 
-      for (var i = 0 ; i < 3; i++) {
+      for (var i = 0 ; i < window.similarApartments.length; i++) {
         clonePin();
         locatePin(pinMap.children[i+1], window.similarApartments[i]);
       }
@@ -52,7 +52,6 @@ initializeElements();
 window.updateDialogCardInfo = function(pinData) {
   // avatar
   document.querySelector(".dialog__title img").src = pinData.author.avatar;
-
   // dialog panel
   document.querySelector(".lodge__title").innerHTML = pinData.offer.title;
   document.querySelector(".lodge__address").innerHTML = pinData.offer.address;
@@ -119,5 +118,222 @@ function addkeyboardElements() {
     element.setAttribute('tabindex', tabindex);
   }
 };
-
 window.addkeyboardElements = addkeyboardElements();
+
+// Включение фильтров
+(function() {
+  var filters = document.querySelectorAll('.tokyo__filter');
+  var pinsToShowList = [];
+  var selectedFeatures = [];
+  var activeFilters = {
+    features: function(items) {
+      if (selectedFeatures.length === 0) {
+        return items;
+      }
+
+      return items.filter(function(item) {
+        var contain = false;
+
+        selectedFeatures.map(function(feature) {
+          if (window.similarApartments[item].offer.features.indexOf(feature) > -1) {
+            contain = true;
+          }
+        });
+
+        return contain;
+      });
+    }
+  };
+
+  filters[0].addEventListener('change', activateFilter0);
+  filters[1].addEventListener('change', activateFilter1);
+  filters[2].addEventListener('change', activateFilter2);
+  filters[3].addEventListener('change', activateFilter3);
+
+  var housingFeatures = document.querySelector('#housing_features');
+  housingFeatures.addEventListener('change', function(event) {
+    var value = event.target.value;
+    var index = selectedFeatures.indexOf(value);
+
+    if (index > -1) {
+      selectedFeatures = [].concat(selectedFeatures.slice(0, index), selectedFeatures.slice(index + 1));
+    } else {
+      selectedFeatures.push(value);
+    }
+
+    showPins();
+  });
+
+  function activateFilter0() {
+    // сравнение данных каждого пина и значения фильтра
+    activeFilters.type = function(items) {
+      return synchronizeFields_2(
+        filters[0],
+        ['any', 'flat', 'house', 'bungalo'],
+        'type',
+        filterByValue,
+        items
+      );
+    };
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function activateFilter1() {
+    // сравнение данных каждого пина и значения фильтра
+    activeFilters.price = function(items) {
+      return synchronizeFields_2(
+        filters[1],
+        ['middle', 'low', 'high'],
+        'price',
+        filterByPrice,
+        items
+      );
+    };
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function activateFilter2() {
+    // сравнение данных каждого пина и значения фильтра
+    activeFilters.rooms = function(items) {
+      return synchronizeFields_2(
+        filters[2],
+        ['any', '1', '2', '3'],
+        'rooms',
+        filterByValue,
+        items
+      );
+    };
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function activateFilter3() {
+    // сравнение данных каждого пина и значения фильтра
+    activeFilters.guests = function(items) {
+      return synchronizeFields_2(
+        filters[3],
+        ['any', '1', '2'],
+        'guests',
+        filterByValue,
+        items
+      );
+    };
+
+    // отображение подходящих пинов, которые записаны в pinsToShowList
+    showPins();
+  };
+
+  function filterProcess(activeFilters) {
+    var filteredPins = [];
+    var items = window.similarApartments.map(function(item, index) {
+      return index;
+    });
+
+    Object.keys(activeFilters).map(function(fieldName) {
+      // console.log('filter apply', activeFilters[fieldName]());
+
+      if (!fieldName) {
+        return null;
+      }
+
+      if (filteredPins.length === 0) {
+        filteredPins = activeFilters[fieldName](items);
+      } else {
+        filteredPins = activeFilters[fieldName](filteredPins);
+      }
+    });
+
+    return filteredPins;
+  }
+
+  // вспомогательные функции
+  function hideAllPins() {
+    for (var i = 1; i < window.allPins.length; i++) {
+      window.allPins[i].classList.add('invisible');
+    };
+  }
+
+  function filterByValue(filter, parameter, items) {
+    var filteredItems = [];
+
+    for (var j = 0; j < items.length; j++) {
+      var pinData = window.similarApartments[items[j]];
+
+      if (typeof pinData === 'undefined') {
+        continue;
+      }
+
+      if (filter.value === 'any') {
+        filteredItems.push(items[j]);
+      } else if (filter.value === String(pinData.offer[parameter])) {
+        filteredItems.push(items[j]);
+      };
+    }
+
+    return filteredItems;
+  };
+
+  function filterByFeature(filter, value, items) {
+    var filteredItems = [];
+    for (var j = 0; j < items.length; j++) {
+      var pinData = window.similarApartments[items[j]];
+
+      if (typeof pinData === 'undefined') {
+        continue;
+      }
+
+      if (filter.features.indexOf(value) > -1) {
+        filteredItems.push(items[j]);
+      }
+    }
+
+    return filteredItems;
+  };
+
+  function filterByPrice(filter, parameter, items) {
+    var filteredItems = [];
+
+    for (var j = 0; j < items.length; j++) {
+      var pinData = window.similarApartments[items[j]];
+      var offerPrice = pinData.offer[parameter];
+
+      if (filter.value === 'low') {
+        if (offerPrice < 10000) {
+          filteredItems.push(items[j]);
+        }
+      };
+
+      if (filter.value === 'high') {
+        if (offerPrice > 50000) {
+          filteredItems.push(items[j]);
+        }
+      };
+
+      if (filter.value === 'middle') {
+        if (offerPrice > 10000 && offerPrice < 50000) {
+          filteredItems.push(items[j]);
+        }
+      };
+    };
+
+    return filteredItems;
+  };
+
+  function showPins() {
+    hideAllPins();
+
+    var filteredItemsToShow = filterProcess(activeFilters);
+    for (var i = 0; i < filteredItemsToShow.length; i++) {
+      if (typeof filteredItemsToShow[i] === 'undefined') {
+        continue;
+      }
+
+      window.allPins[filteredItemsToShow[i] + 1].classList.remove('invisible');
+    }
+  };
+})();
