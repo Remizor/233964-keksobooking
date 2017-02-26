@@ -16,20 +16,16 @@ var synchronizeFields = function(element1, element2, values1, values2, syncFunct
       }
     }
   }
-}
-
+};
 window.synchronizeFields = synchronizeFields;
 
 function synchronizeFields_2(filter, filterValues, parameter, syncFunction, items) {
   for (var i = 0; i < filterValues.length; i++) {
-
     if (filter.value === filterValues[i]) {
       if (typeof syncFunction === 'function') {
         return syncFunction(filter, parameter, items);
       }
     }
-
   }
-
 };
 window.synchronizeFields_2 = synchronizeFields_2;

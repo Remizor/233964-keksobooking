@@ -145,25 +145,13 @@ window.addkeyboardElements = addkeyboardElements();
     }
   };
 
-  // for (var i = 0; i < filters.length; i++) {
-  //   filters[i].addEventListener('change', activateFilter + i);
-  //
-  // };
-
-  // var onFilterChange = function(event) {
-  //
-  // };
-
   filters[0].addEventListener('change', activateFilter0);
-
   filters[1].addEventListener('change', activateFilter1);
-
   filters[2].addEventListener('change', activateFilter2);
-
   filters[3].addEventListener('change', activateFilter3);
 
-  document.querySelector('#housing_features').addEventListener('change', function(event) {
-    console.log('change ', event.target.name, event.target.value);
+  var housingFeatures = document.querySelector('#housing_features');
+  housingFeatures.addEventListener('change', function(event) {
     var value = event.target.value;
     var index = selectedFeatures.indexOf(value);
 
@@ -173,17 +161,10 @@ window.addkeyboardElements = addkeyboardElements();
       selectedFeatures.push(value);
     }
 
-    console.log('selectedFeatures cahnge', selectedFeatures);
-
-        showPins();
+    showPins();
   });
 
-  // filters.addEventListener('change', onFilterChange);
-
   function activateFilter0() {
-    // скрытие всех пинов с карты
-    // hideAllPins();
-
     // сравнение данных каждого пина и значения фильтра
     activeFilters.type = function(items) {
       return synchronizeFields_2(
@@ -200,9 +181,6 @@ window.addkeyboardElements = addkeyboardElements();
   };
 
   function activateFilter1() {
-    // скрытие всех пинов с карты
-    // hideAllPins();
-
     // сравнение данных каждого пина и значения фильтра
     activeFilters.price = function(items) {
       return synchronizeFields_2(
@@ -219,9 +197,6 @@ window.addkeyboardElements = addkeyboardElements();
   };
 
   function activateFilter2() {
-    // скрытие всех пинов с карты
-    // hideAllPins();
-
     // сравнение данных каждого пина и значения фильтра
     activeFilters.rooms = function(items) {
       return synchronizeFields_2(
@@ -238,9 +213,6 @@ window.addkeyboardElements = addkeyboardElements();
   };
 
   function activateFilter3() {
-    // скрытие всех пинов с карты
-    hideAllPins();
-
     // сравнение данных каждого пина и значения фильтра
     activeFilters.guests = function(items) {
       return synchronizeFields_2(
@@ -257,7 +229,6 @@ window.addkeyboardElements = addkeyboardElements();
   };
 
   function filterProcess(activeFilters) {
-    // console.log('filterProcess start');
     var filteredPins = [];
     var items = window.similarApartments.map(function(item, index) {
       return index;
@@ -265,7 +236,6 @@ window.addkeyboardElements = addkeyboardElements();
 
     Object.keys(activeFilters).map(function(fieldName) {
       // console.log('filter apply', activeFilters[fieldName]());
-      console.log('filteredPins before', filteredPins);
 
       if (!fieldName) {
         return null;
@@ -276,21 +246,10 @@ window.addkeyboardElements = addkeyboardElements();
       } else {
         filteredPins = activeFilters[fieldName](filteredPins);
       }
-            console.log('filteredPins after', filteredPins, fieldName);
-      // filteredPins = filteredPins.concat(activeFilters[fieldName](
-      //   filteredPins.length === 0 ?
-      //   items :
-      //   filteredPins
-      // ));
-      // filteredPins.push(filterFunction());
     });
-
-    // console.log('filter process return ', filteredPins);
 
     return filteredPins;
   }
-
-
 
   // вспомогательные функции
   function hideAllPins() {
@@ -301,7 +260,7 @@ window.addkeyboardElements = addkeyboardElements();
 
   function filterByValue(filter, parameter, items) {
     var filteredItems = [];
-    // console.log('filter value '  + filter.value);
+
     for (var j = 0; j < items.length; j++) {
       var pinData = window.similarApartments[items[j]];
 
@@ -314,15 +273,13 @@ window.addkeyboardElements = addkeyboardElements();
       } else if (filter.value === String(pinData.offer[parameter])) {
         filteredItems.push(items[j]);
       };
-
     }
 
     return filteredItems;
-    // console.log('pinsToShowList = ' + pinsToShowList);
   };
+
   function filterByFeature(filter, value, items) {
     var filteredItems = [];
-    // console.log('filter value '  + filter.value);
     for (var j = 0; j < items.length; j++) {
       var pinData = window.similarApartments[items[j]];
 
@@ -336,23 +293,14 @@ window.addkeyboardElements = addkeyboardElements();
     }
 
     return filteredItems;
-    // console.log('pinsToShowList = ' + pinsToShowList);
   };
 
   function filterByPrice(filter, parameter, items) {
-    console.log('filterByPrice run');
     var filteredItems = [];
 
     for (var j = 0; j < items.length; j++) {
       var pinData = window.similarApartments[items[j]];
       var offerPrice = pinData.offer[parameter];
-
-      // console.log(j + ' offerPrice = ' + offerPrice);
-      // console.log('filter.value = ' + filter.value);
-      // console.log('low?' + (offerPrice < 10000));
-      // console.log('middle?' + (offerPrice > 10000 && offerPrice < 50000));
-      // console.log('high?' + (offerPrice > 50000));
-
 
       if (filter.value === 'low') {
         if (offerPrice < 10000) {
@@ -373,19 +321,13 @@ window.addkeyboardElements = addkeyboardElements();
       };
     };
 
-    console.log('filter by price ', filteredItems);
-
     return filteredItems;
-    // console.log('pinsToShowList = ' + pinsToShowList);
   };
 
   function showPins() {
     hideAllPins();
 
     var filteredItemsToShow = filterProcess(activeFilters);
-    // console.log('===', filteredItemsToShow);
-
-    // console.log('pinsToShowList at the end 2 = ' + pinsToShowList);
     for (var i = 0; i < filteredItemsToShow.length; i++) {
       if (typeof filteredItemsToShow[i] === 'undefined') {
         continue;
