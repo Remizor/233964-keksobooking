@@ -1,45 +1,32 @@
 'use strict';
 
-window.load = function(dataURL, onLoad) {
-  var data = [];
-  var xhr = new XMLHttpRequest();
+window.load = (function () {
 
-  xhr.open('GET', dataURL);
-  xhr.addEventListener('readystatechange', function(evt) {
+  var errorHandler = function (err) {
+    return (err);
+  };
 
-    switch (evt.target.readyState) {
-      case 0:
-        console.log('Status: not sent');
-        break;
+  return function (dataURL, onLoad, onError) {
+    var xhr = new XMLHttpRequest();
 
-      case 1:
-        console.log('Status: opened');
-        break;
+    if (typeof onError === 'function') {
+      errorHandler = onError;
+    }
 
-      case 2:
-        console.log('Status: headers recieved');
-        break;
+    xhr.addEventListener('load', function (evt) {
+      if (evt.target.status >= 400) {
+        errorHandler('Failed to load data. Server returned status: ' + evt.target.status);
+      } else if (evt.target.status >= 200) {
+        onLoad(evt.target.response);
+      }
+    });
 
-      case 3:
-        console.log('Status: loading');
-        break;
+    xhr.addEventListener('error', errorHandler);
+    xhr.addEventListener('timeout', errorHandler);
 
-      case 4:
-        console.log('Status: loaded');
-    };
-  })
+    xhr.responseType = 'json';
 
-  xhr.addEventListener('load', onLoad);
-  xhr.addEventListener('load', window.addkeyboardElements);
-
-  xhr.addEventListener('error', function() {
-    alert('Something\'s went wrong');
-  });
-
-  xhr.timeout = 50000;
-  xhr.addEventListener('timeout', function() {
-    alert('Time\'s up!');
-  });
-
-  xhr.send();
-};
+    xhr.open('GET', dataURL);
+    xhr.send();
+  };
+})();
