@@ -8,15 +8,15 @@ window.dialog = (function () {
 
   var showDialog = function (pinData) {
     // avatar
-    document.querySelector('.dialog__title img').src = pinData.author.avatar;
+    dialogCard.querySelector('.dialog__title img').src = pinData.author.avatar;
     // dialog panel
-    document.querySelector('.lodge__title').innerHTML = pinData.offer.title;
-    document.querySelector('.lodge__address').innerHTML = pinData.offer.address;
-    document.querySelector('.lodge__price').innerHTML = pinData.offer.price;
-    document.querySelector('.lodge__type').innerHTML = pinData.offer.type;
-    document.querySelector('.lodge__rooms-and-guests').innerHTML = (pinData.offer.rooms + ' комната(ы) для ' + pinData.offer.guests + ' гостя(ей)');
-    document.querySelector('.lodge__checkin-time').innerHTML = 'Заезд после ' + pinData.offer.checkin + ', выезд до ' + pinData.offer.checkout;
-    document.querySelector('.lodge__description').innerHTML = pinData.offer.description;
+    dialogCard.querySelector('.lodge__title').innerHTML = pinData.offer.title;
+    dialogCard.querySelector('.lodge__address').innerHTML = pinData.offer.address;
+    dialogCard.querySelector('.lodge__price').innerHTML = pinData.offer.price;
+    dialogCard.querySelector('.lodge__type').innerHTML = pinData.offer.type;
+    dialogCard.querySelector('.lodge__rooms-and-guests').innerHTML = (pinData.offer.rooms + ' комната(ы) для ' + pinData.offer.guests + ' гостя(ей)');
+    dialogCard.querySelector('.lodge__checkin-time').innerHTML = 'Заезд после ' + pinData.offer.checkin + ', выезд до ' + pinData.offer.checkout;
+    dialogCard.querySelector('.lodge__description').innerHTML = pinData.offer.description;
 
     // Очистка существующих дочерних элементов
     function removeAllChildren(parent) {
