@@ -6,19 +6,21 @@ window.filterApartments = (function () {
   var filtersFeatureId = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
   var selectedValues = [];
   var featuresValues = [];
+  var selectNode;
+  var featureCheckbox;
   var LOW_PRICE_LIMIT = 10000;
   var UPPER_PRICE_LIMIT = 50000;
   var VALUE_ANY = 'any';
 
   function getSelectedValues() {
     filtersSelectId.forEach(function (item) {
-      var selectNode = document.querySelector('#' + item);
+      selectNode = document.querySelector('#' + item);
       if (selectNode !== null) {
         selectedValues.push(selectNode.value);
       }
     });
     filtersFeatureId.forEach(function (item) {
-      var featureCheckbox = document.querySelector('#' + item);
+      featureCheckbox = document.querySelector('#' + item);
       if (featureCheckbox !== null && featureCheckbox.checked) {
         featuresValues.push(featureCheckbox.value);
       }
